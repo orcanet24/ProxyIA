@@ -1,0 +1,46 @@
+[package]
+name = "ProxyIA"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+sqlx = { version = "0.7", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+walkdir = "2.4"
+sha2 = "0.10"
+clap = { version = "4", features = ["derive"] }
+regex = "1"
+async-trait = "0.1"
+dotenvy = "0.15.7"
+reqwest = { version = "0.13.4", default-features = false, features = ["json", "native-tls"] }
+futures = "0.3"
+notify = "6.1.1"
+svg = "0.15.1"
+
+# Análisis AST
+tree-sitter = "0.22"
+tree-sitter-rust = "0.21"
+tree-sitter-php = "0.23"
+tree-sitter-javascript = "0.21"
+tree-sitter-typescript = "0.21"
+tree-sitter-python = "0.21"
+tree-sitter-go = "0.21"
+tree-sitter-cpp = "0.21"
+tree-sitter-java = "0.21"
+tree-sitter-c-sharp = "0.21"
+tree-sitter-ruby = "0.21"
+
+# Embeddings locales 100% Rust (Candle + HuggingFace)
+# NOTA: candle-core requiere compilar gemm-* que es lento en Windows.
+# Por ahora se usa un hash embedder nativo (sin dependencias).
+# Para activar candle: descomentar estas líneas y comentar el hash embedder.
+# candle-core = "0.8"
+# candle-transformers = "0.8"
+# candle-nn = "0.8"
+# hf-hub = "0.4"
+# tokenizers = "0.21"
