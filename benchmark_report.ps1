@@ -77,11 +77,14 @@ $reportLines.Add("")
 $dbFiles = @("$pwd\kairos.db")
 foreach ($f in $dbFiles) { if (Test-Path $f) { Remove-Item $f -Force; Log "  DB eliminada: $f" } }
 
-$cmdIndex = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"MANDATORY_index_project","arguments":{"path":"' + $ProjectPath.replace('\','\\') + '"}}}'
-$result = Invoke-ProxyIA @($cmdIndex)
+$cmds = @()
+$cmds += '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"benchmark","version":"1.0"}}}'
+$cmds += '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"MANDATORY_index_project","arguments":{"path":"' + $ProjectPath.replace('\','\\') + '"}}}'
+$result = Invoke-ProxyIA @($cmds)
 
 # Extraer tiempo del resultado
-$durationMatch = [regex]::Match($result.Stdout, '(\d+)\s*ms')
+$stdoutSafe = if ($result.Stdout) { $result.Stdout } else { "" }
+$durationMatch = [regex]::Match($stdoutSafe, '(\d+)\s*ms')
 $indexTime = if ($durationMatch.Success) { [int]$durationMatch.Groups[1].Value } else { $result.DurationMs }
 
 $reportLines.Add("| Metrica | Valor |")
@@ -109,8 +112,9 @@ $reportLines.Add("Segunda indexacion del mismo proyecto. Los resumenes L1 ya exi
 $reportLines.Add("solo se regeneran embeddings si cambiaron los archivos.")
 $reportLines.Add("")
 
-$result2 = Invoke-ProxyIA @($cmdIndex)
-$durationMatch2 = [regex]::Match($result2.Stdout, '(\d+)\s*ms')
+$result2 = Invoke-ProxyIA @($cmds)
+$stdoutSafe2 = if ($result2.Stdout) { $result2.Stdout } else { "" }
+$durationMatch2 = [regex]::Match($stdoutSafe2, '(\d+)\s*ms')
 $indexTime2 = if ($durationMatch2.Success) { [int]$durationMatch2.Groups[1].Value } else { $result2.DurationMs }
 
 $reportLines.Add("| Metrica | Valor |")
@@ -137,9 +141,13 @@ $searchResults = @()
 foreach ($query in $searchQueries) {
     $safeQuery = $query -replace '"','\"'
     $cmdSearch = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_context","arguments":{"query":"' + $safeQuery + '","limit":3}}}'
-    $res = Invoke-ProxyIA @($cmdSearch)
+    $searchCmds = @()
+    $searchCmds += '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"benchmark","version":"1.0"}}}'
+    $searchCmds += $cmdSearch
+    $res = Invoke-ProxyIA @($searchCmds)
     
-    $savingsMatch = [regex]::Match($res.Stderr, "(\d+)\s*tokens?\s*(ahorrado|save|saved)")
+    $resStderr = if ($res.Stderr) { $res.Stderr } else { "" }
+    $savingsMatch = [regex]::Match($resStderr, "(\d+)\s*tokens?\s*(ahorrado|save|saved)")
     
     $searchResults += @{
         Query = $query
@@ -168,8 +176,10 @@ $reportLines.Add("Obtiene los esqueletos/resumenes L1 de TODO el proyecto.")
 $reportLines.Add("Equivalente a entender la arquitectura sin leer archivos.")
 $reportLines.Add("")
 
-$cmdMap = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_structural_map","arguments":{}}}'
-$resultMap = Invoke-ProxyIA @($cmdMap)
+$mapCmds = @()
+$mapCmds += '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"benchmark","version":"1.0"}}}'
+$mapCmds += '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"get_structural_map","arguments":{}}}'
+$resultMap = Invoke-ProxyIA @($mapCmds)
 $reportLines.Add("| Metrica | Valor |")
 $reportLines.Add("|---|---|")
 $reportLines.Add("| Tiempo | **$($resultMap.DurationMs) ms** |")
