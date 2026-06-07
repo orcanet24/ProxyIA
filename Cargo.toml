@@ -34,6 +34,7 @@ tree-sitter-cpp = "0.21"
 tree-sitter-java = "0.21"
 tree-sitter-c-sharp = "0.21"
 tree-sitter-ruby = "0.21"
+hex = "0.4.3"
 
 # Embeddings locales 100% Rust (Candle + HuggingFace)
 # NOTA: candle-core requiere compilar gemm-* que es lento en Windows.

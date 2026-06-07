@@ -12,6 +12,7 @@ dependencies = [
  "clap",
  "dotenvy",
  "futures",
+ "hex",
  "notify",
  "regex",
  "reqwest",

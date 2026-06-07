@@ -1,0 +1,1 @@
+{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"index_project","arguments":{"path":"C:/laragon/www/crm/app"}}}  
